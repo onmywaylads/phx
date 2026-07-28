@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>피닉스 — 고객 플랫폼 앱 (시안)</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+  :root{
+    --blue:#3182F6; --blue-strong:#1B64DA; --blue-050:#EDF3FE;
+    --navy:#191F28; --g900:#333D4B; --g700:#4E5968; --g500:#6B7684; --g400:#8B95A1;
+    --g200:#E5E8EB; --g100:#F2F4F6; --g50:#F9FAFB; --white:#fff;
+    --green:#12B886; --green-bg:#E6FCF5; --amber:#F59F00; --amber-bg:#FFF9DB; --red:#E8443C; --red-bg:#FFF0EF;
+    --r:16px; --sh:0 1px 3px rgba(16,24,40,.06),0 1px 2px rgba(16,24,40,.04); --sh-lg:0 12px 30px rgba(16,24,40,.12);
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:'Pretendard Variable','Pretendard',-apple-system,system-ui,'Malgun Gothic',sans-serif;
+    color:var(--navy);line-height:1.45;-webkit-font-smoothing:antialiased;letter-spacing:-.02em;
+    background:linear-gradient(160deg,#E9EFF6,#DEE6F0);display:flex;flex-direction:column;align-items:center;min-height:100%}
+  img{display:block;max-width:100%}
+  button,a{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit;text-decoration:none}
+  .ic{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none;display:block}
+
+  .demo-note{max-width:430px;width:100%;padding:14px 20px 8px;color:#54627A;font-size:12.5px;font-weight:600;text-align:center}
+
+  .phone{width:100%;max-width:430px;background:var(--g50);height:100vh;height:100dvh;position:relative;box-shadow:var(--sh-lg);overflow:hidden;display:flex;flex-direction:column}
+  @media(min-width:480px){.phone{border-radius:36px;margin:16px 0 30px;height:860px;max-height:calc(100vh - 40px);border:1px solid rgba(0,0,0,.06)}}
+
+  /* 앱바 */
+  .appbar{background:var(--white);padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex:none;z-index:20;position:relative}
+  .loc{display:flex;align-items:center;gap:5px;font-size:18px;font-weight:800;letter-spacing:-.03em;color:var(--navy)}
+  .loc .ic{width:19px;height:19px;color:var(--blue)}
+  .loc .chev{width:16px;height:16px;color:var(--g400)}
+  .bell{width:42px;height:42px;border-radius:12px;background:var(--g100);display:grid;place-items:center;position:relative;color:var(--g700)}
+  .bell .ic{width:20px;height:20px}
+  .bell .dot{position:absolute;top:10px;right:11px;width:7px;height:7px;background:var(--red);border-radius:50%;border:1.5px solid var(--g100)}
+
+  .screen{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none}
+  .screen.on{display:block}
+  .pad{padding:16px 18px}
+
+  /* 검색 */
+  .searchbar{margin:2px 18px 4px;display:flex;align-items:center;gap:9px;background:var(--g100);border-radius:13px;padding:13px 15px;color:var(--g400);font-size:15px;font-weight:600}
+  .searchbar .ic{width:19px;height:19px}
+
+  .sec-t{font-size:17px;font-weight:800;letter-spacing:-.03em;margin:8px 2px 12px}
+  .sec-t .more{float:right;font-size:13px;font-weight:700;color:var(--g400)}
+
+  /* 재주문 히어로 */
+  .reorder{background:linear-gradient(135deg,#1B64DA,#3182F6);border-radius:20px;padding:18px;color:#fff;box-shadow:0 10px 24px rgba(49,130,246,.3)}
+  .reorder .rk{font-size:13px;font-weight:700;color:#CFE0FF}
+  .reorder .rmain{display:flex;align-items:center;gap:13px;margin-top:12px}
+  .reorder .rimg{width:52px;height:52px;border-radius:13px;background:rgba(255,255,255,.16);display:grid;place-items:center;flex:none}
+  .reorder .rimg .ic{width:26px;height:26px;color:#fff}
+  .reorder .rinfo{flex:1;min-width:0}
+  .reorder .rname{font-size:17px;font-weight:800;letter-spacing:-.02em}
+  .reorder .rsub{font-size:13px;color:#DCE9FF;font-weight:600;margin-top:1px}
+  .reorder .rgauge{height:6px;border-radius:99px;background:rgba(255,255,255,.25);overflow:hidden;margin-top:9px}
+  .reorder .rgauge>i{display:block;height:100%;width:16%;background:#fff;border-radius:99px}
+  .reorder .rbtn{margin-top:14px;width:100%;min-height:50px;border-radius:13px;background:#fff;color:var(--blue-strong);font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:7px}
+  .reorder .rbtn .ic{width:18px;height:18px;stroke-width:2.5}
+  .reorder .rbtn:active{transform:scale(.98)}
+
+  /* 카테고리 타일 */
+  .cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px 4px;margin-top:8px}
+  .cat{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 4px;border-radius:14px}
+  .cat:active{background:var(--g100)}
+  .cat .ci{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--blue-050)}
+  .cat .ci .ic{width:24px;height:24px;color:var(--blue-strong)}
+  .cat .ci.red{background:var(--red-bg)}.cat .ci.red .ic{color:var(--red)}
+  .cat .ci.blue{background:#E7F0FF}.cat .ci.blue .ic{color:var(--blue)}
+  .cat .ci.green{background:var(--green-bg)}.cat .ci.green .ic{color:var(--green)}
+  .cat .ci.amber{background:var(--amber-bg)}.cat .ci.amber .ic{color:#C77700}
+  .cat .cl{font-size:12.5px;font-weight:700;color:var(--g900)}
+
+  /* 구독 상태 카드 */
+  .subcard{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--g200);border-radius:var(--r);padding:15px 16px;box-shadow:var(--sh)}
+  .subcard .si{width:42px;height:42px;border-radius:12px;background:var(--green-bg);display:grid;place-items:center;flex:none}
+  .subcard .si .ic{width:21px;height:21px;color:var(--green)}
+  .subcard .sinfo{flex:1;min-width:0}
+  .subcard .sk{font-size:12.5px;color:var(--green);font-weight:800}
+  .subcard .sv{font-size:15px;font-weight:700;margin-top:2px}
+  .subcard .chev{width:20px;height:20px;color:var(--g400);flex:none}
+
+  /* 프로모 배너 */
+  .promo{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#111827,#2B3A52);border-radius:var(--r);padding:18px;color:#fff;overflow:hidden}
+  .promo .pinfo{flex:1}
+  .promo .pk{font-size:13px;color:#AEBBCC;font-weight:700}
+  .promo .pv{font-size:17px;font-weight:800;letter-spacing:-.02em;margin-top:3px}
+  .promo .pbtn{background:#fff;color:var(--navy);font-size:14px;font-weight:800;padding:11px 16px;border-radius:11px;flex:none}
+
+  /* 추천 리스트 */
+  .rank{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+  .rank .ri{display:flex;align-items:center;gap:13px;padding:14px 16px;border-bottom:1px solid var(--g100)}
+  .rank .ri:last-child{border-bottom:0}
+  .rank .rn{font-size:16px;font-weight:800;color:var(--blue);width:16px;text-align:center;flex:none}
+  .rank .rimg{width:46px;height:46px;border-radius:11px;display:grid;place-items:center;flex:none}
+  .rank .rimg .ic{width:22px;height:22px}
+  .rank .rtext{flex:1;min-width:0}
+  .rank .rt-n{font-size:15px;font-weight:700;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rank .rt-p{font-size:14px;font-weight:800;margin-top:2px}
+  .rank .radd{width:38px;height:38px;border-radius:11px;background:var(--blue-050);color:var(--blue-strong);display:grid;place-items:center;flex:none}
+  .rank .radd .ic{width:19px;height:19px;stroke-width:2.5}
+
+  /* 일반 화면 카드 */
+  .simple{padding:16px 18px}
+  .bcard{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:18px;margin-bottom:12px}
+  .bcard h3{font-size:17px;font-weight:800;letter-spacing:-.02em}
+  .bcard p{color:var(--g500);font-size:14px;margin-top:6px;line-height:1.55}
+  .bigbtn{width:100%;min-height:54px;border-radius:14px;background:var(--blue);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px}
+  .bigbtn .ic{width:20px;height:20px}
+  .menu-list{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+  .menu-list a{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--g100);font-size:15px;font-weight:600}
+  .menu-list a:last-child{border-bottom:0}
+  .menu-list a .ic{width:20px;height:20px;color:var(--g500)}
+  .menu-list a .chev{margin-left:auto;color:var(--g300,#B0B8C1)}
+  .empty-lead{color:var(--g500);font-size:14px;margin:2px 2px 14px;font-weight:500}
+
+  /* 하단 탭바 */
+  .tabbar{flex:none;height:66px;background:#fff;border-top:1px solid var(--g100);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:30}
+  .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--g400);font-size:10.5px;font-weight:700;transition:color .14s}
+  .tab .ic{width:23px;height:23px}
+  .tab.on{color:var(--blue)}
+
+  @media(max-width:479px){
+    .demo-note{display:none}
+    body{display:block;background:#fff}
+    .phone{display:block;max-width:none;height:auto;min-height:100dvh;overflow:visible;box-shadow:none;border-radius:0}
+    .appbar{position:fixed;top:0;left:0;right:0;z-index:40;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+    .tabbar{position:fixed;bottom:0;left:0;right:0;z-index:40}
+    .screen{padding-top:64px;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></symbol>
+  <symbol id="i-repeat" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-droplet" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></symbol>
+  <symbol id="i-headset" viewBox="0 0 24 24"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><path d="M21 16a2 2 0 0 1-2 2h-1v-6h1a2 2 0 0 1 2 2zM3 16a2 2 0 0 0 2 2h1v-6H5a2 2 0 0 0-2 2z"/></symbol>
+</svg>
+
+<div class="demo-note">고객 플랫폼 앱 시안 · 식당 사장님이 쓰는 화면 (데이터는 가안)</div>
+
+<div class="phone">
+  <div class="appbar">
+    <button class="loc"><svg class="ic"><use href="#i-pin"/></svg>진상미식당<svg class="ic chev"><use href="#i-down"/></svg></button>
+    <button class="bell" aria-label="알림"><svg class="ic"><use href="#i-bell"/></svg><span class="dot"></span></button>
+  </div>
+
+  <!-- 홈 -->
+  <div class="screen on" id="s-home">
+    <div class="searchbar"><svg class="ic"><use href="#i-search"/></svg>세제 · 부품 · 모델 검색</div>
+    <div class="pad">
+      <!-- 재주문 히어로 -->
+      <div class="reorder">
+        <div class="rk">지금 주문하면 딱 좋아요</div>
+        <div class="rmain">
+          <div class="rimg"><svg class="ic"><use href="#i-droplet"/></svg></div>
+          <div class="rinfo">
+            <div class="rname">E크린 레드 20L</div>
+            <div class="rsub">세척용 · 약 5일 남음</div>
+            <div class="rgauge"><i></i></div>
+          </div>
+        </div>
+        <button class="rbtn" onclick="alert('시안 — 1분 재주문 (담당 대리점 배송)')"><svg class="ic"><use href="#i-repeat"/></svg>1분 재주문 · 39,000원</button>
+      </div>
+
+      <!-- 카테고리 타일 -->
+      <div class="cat-grid" style="margin-top:18px">
+        <a class="cat" onclick="go('shop')"><span class="ci red"><svg class="ic"><use href="#i-droplet"/></svg></span><span class="cl">세제</span></a>
+        <a class="cat" onclick="go('shop')"><span class="ci blue"><svg class="ic"><use href="#i-droplet"/></svg></span><span class="cl">린스</span></a>
+        <a class="cat" onclick="go('shop')"><span class="ci"><svg class="ic"><use href="#i-box"/></svg></span><span class="cl">부품</span></a>
+        <a class="cat" onclick="go('shop')"><span class="ci amber"><svg class="ic"><use href="#i-calendar"/></svg></span><span class="cl">렌탈</span></a>
+        <a class="cat" onclick="go('device')"><span class="ci green"><svg class="ic"><use href="#i-wrench"/></svg></span><span class="cl">AS 신청</span></a>
+        <a class="cat" onclick="go('sub')"><span class="ci"><svg class="ic"><use href="#i-repeat"/></svg></span><span class="cl">구독관리</span></a>
+        <a class="cat"><span class="ci"><svg class="ic"><use href="#i-doc"/></svg></span><span class="cl">견적</span></a>
+        <a class="cat" onclick="go('shop')"><span class="ci"><svg class="ic"><use href="#i-grid"/></svg></span><span class="cl">전체</span></a>
+      </div>
+
+      <!-- 구독 상태 -->
+      <div style="margin-top:18px" onclick="go('sub')">
+        <div class="subcard">
+          <div class="si"><svg class="ic"><use href="#i-repeat"/></svg></div>
+          <div class="sinfo"><div class="sk">정기배송 구독중</div><div class="sv">다음 배송 8/2 · E크린 레드 2통</div></div>
+          <svg class="ic chev"><use href="#i-chevron"/></svg>
+        </div>
+      </div>
+
+      <!-- 프로모 -->
+      <div style="margin-top:12px">
+        <div class="promo">
+          <div class="pinfo"><div class="pk">E크린 레드 + 블루 세트</div><div class="pv">묶음 구매 10% 할인</div></div>
+          <button class="pbtn" onclick="go('shop')">담기</button>
+        </div>
+      </div>
+
+      <!-- 추천 랭킹 -->
+      <div style="margin-top:22px">
+        <div class="sec-t">일반식당이 많이 담는 소모품 <span class="more">전체 ›</span></div>
+        <div class="rank">
+          <div class="ri">
+            <div class="rn">1</div>
+            <div class="rimg" style="background:var(--red-bg)"><svg class="ic" style="color:var(--red)"><use href="#i-droplet"/></svg></div>
+            <div class="rtext"><div class="rt-n">E크린 레드 20L (세척)</div><div class="rt-p">39,000원</div></div>
+            <button class="radd"><svg class="ic"><use href="#i-plus"/></svg></button>
+          </div>
+          <div class="ri">
+            <div class="rn">2</div>
+            <div class="rimg" style="background:#E7F0FF"><svg class="ic" style="color:var(--blue)"><use href="#i-droplet"/></svg></div>
+            <div class="rtext"><div class="rt-n">E크린 블루 20L (린스)</div><div class="rt-p">42,000원</div></div>
+            <button class="radd"><svg class="ic"><use href="#i-plus"/></svg></button>
+          </div>
+          <div class="ri">
+            <div class="rn">3</div>
+            <div class="rimg" style="background:var(--g100)"><svg class="ic" style="color:var(--g500)"><use href="#i-box"/></svg></div>
+            <div class="rtext"><div class="rt-n">도어 스프링 (프라임 호환)</div><div class="rt-p">8,000원</div></div>
+            <button class="radd"><svg class="ic"><use href="#i-plus"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 주문(카탈로그) -->
+  <div class="screen" id="s-shop">
+    <div class="searchbar"><svg class="ic"><use href="#i-search"/></svg>세제 · 부품 · 모델 검색</div>
+    <div class="pad">
+      <div class="sec-t">세제 · 린스</div>
+      <div class="rank">
+        <div class="ri"><div class="rimg" style="background:var(--red-bg)"><svg class="ic" style="color:var(--red)"><use href="#i-droplet"/></svg></div><div class="rtext"><div class="rt-n">E크린 레드 20L (세척)</div><div class="rt-p">39,000원</div></div><button class="radd"><svg class="ic"><use href="#i-plus"/></svg></button></div>
+        <div class="ri"><div class="rimg" style="background:#E7F0FF"><svg class="ic" style="color:var(--blue)"><use href="#i-droplet"/></svg></div><div class="rtext"><div class="rt-n">E크린 블루 20L (린스)</div><div class="rt-p">42,000원</div></div><button class="radd"><svg class="ic"><use href="#i-plus"/></svg></button></div>
+      </div>
+      <div class="sec-t" style="margin-top:22px">자주 쓰는 부품</div>
+      <div class="rank">
+        <div class="ri"><div class="rimg" style="background:var(--g100)"><svg class="ic" style="color:var(--g500)"><use href="#i-box"/></svg></div><div class="rtext"><div class="rt-n">도어 스프링 (전 모델)</div><div class="rt-p">8,000원</div></div><button class="radd"><svg class="ic"><use href="#i-plus"/></svg></button></div>
+        <div class="ri"><div class="rimg" style="background:var(--g100)"><svg class="ic" style="color:var(--g500)"><use href="#i-box"/></svg></div><div class="rtext"><div class="rt-n">히터 (프라임 호환)</div><div class="rt-p">주문 문의</div></div><button class="radd"><svg class="ic"><use href="#i-plus"/></svg></button></div>
+      </div>
+      <p class="empty-lead" style="margin-top:16px">담으면 담당 대리점이 배송해 드립니다.</p>
+    </div>
+  </div>
+
+  <!-- 구독 -->
+  <div class="screen" id="s-sub">
+    <div class="pad">
+      <div class="sec-t">내 정기배송</div>
+      <div class="bcard">
+        <div style="display:flex;align-items:center;gap:10px"><span class="si" style="width:38px;height:38px;border-radius:11px;background:var(--green-bg);display:grid;place-items:center"><svg class="ic" style="width:20px;height:20px;color:var(--green)"><use href="#i-repeat"/></svg></span><h3>E크린 레드 정기배송</h3></div>
+        <p>4주마다 2통 · 다음 배송 <b style="color:var(--navy)">8/2</b> · 담당 대리점 배송</p>
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <button class="bigbtn" style="margin:0;background:var(--g100);color:var(--navy);min-height:48px">주기 변경</button>
+          <button class="bigbtn" style="margin:0;background:var(--g100);color:var(--navy);min-height:48px">일시정지</button>
+        </div>
+      </div>
+      <div class="bcard" style="text-align:center">
+        <h3>린스도 정기배송으로?</h3>
+        <p>E크린 블루를 구독하면 세제와 함께 배송돼요.</p>
+        <button class="bigbtn"><svg class="ic"><use href="#i-plus"/></svg>린스 구독 추가</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 내 기기 -->
+  <div class="screen" id="s-device">
+    <div class="pad">
+      <div class="sec-t">우리 가게 기기</div>
+      <div class="bcard">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:54px;height:54px;border-radius:12px;background-color:#F1F5FA;background-image:url('images/prime.jpg');background-size:contain;background-repeat:no-repeat;background-position:center;flex:none"></div>
+          <div><h3>프라임 · 2대</h3><p style="margin-top:2px">2023.05 설치 · 담당 김포대리점</p></div>
+        </div>
+        <button class="bigbtn"><svg class="ic"><use href="#i-headset"/></svg>AS 신청하기</button>
+      </div>
+      <div class="sec-t" style="margin-top:20px">주문 내역</div>
+      <div class="menu-list">
+        <a><svg class="ic"><use href="#i-droplet"/></svg>E크린 레드 20L · 6/26<span class="chev" style="margin-left:auto;font-weight:700;color:var(--g400)">배송완료</span></a>
+        <a><svg class="ic"><use href="#i-box"/></svg>도어 스프링 · 5/12<span class="chev" style="margin-left:auto;font-weight:700;color:var(--g400)">배송완료</span></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 마이 -->
+  <div class="screen" id="s-my">
+    <div class="pad">
+      <div class="bcard" style="display:flex;align-items:center;gap:13px">
+        <div style="width:48px;height:48px;border-radius:50%;background:var(--blue-050);color:var(--blue-strong);display:grid;place-items:center;font-weight:800;font-size:18px">진</div>
+        <div><h3>진상미식당</h3><p style="margin-top:2px">경기 이천 · 담당 김포대리점</p></div>
+      </div>
+      <div class="menu-list">
+        <a><svg class="ic"><use href="#i-repeat"/></svg>구독 관리<svg class="ic chev" style="margin-left:auto;color:#B0B8C1"><use href="#i-chevron"/></svg></a>
+        <a><svg class="ic"><use href="#i-doc"/></svg>주문·결제 내역<svg class="ic chev" style="margin-left:auto;color:#B0B8C1"><use href="#i-chevron"/></svg></a>
+        <a><svg class="ic"><use href="#i-headset"/></svg>AS 내역<svg class="ic chev" style="margin-left:auto;color:#B0B8C1"><use href="#i-chevron"/></svg></a>
+        <a><svg class="ic"><use href="#i-pin"/></svg>배송지·담당 대리점<svg class="ic chev" style="margin-left:auto;color:#B0B8C1"><use href="#i-chevron"/></svg></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 하단 탭 -->
+  <nav class="tabbar">
+    <button class="tab on" data-s="home" onclick="go('home')"><svg class="ic"><use href="#i-home"/></svg>홈</button>
+    <button class="tab" data-s="shop" onclick="go('shop')"><svg class="ic"><use href="#i-grid"/></svg>주문</button>
+    <button class="tab" data-s="sub" onclick="go('sub')"><svg class="ic"><use href="#i-repeat"/></svg>구독</button>
+    <button class="tab" data-s="device" onclick="go('device')"><svg class="ic"><use href="#i-monitor"/></svg>내 기기</button>
+    <button class="tab" data-s="my" onclick="go('my')"><svg class="ic"><use href="#i-user"/></svg>마이</button>
+  </nav>
+</div>
+
+<script>
+  const map={home:'s-home',shop:'s-shop',sub:'s-sub',device:'s-device',my:'s-my'};
+  function go(s){
+    document.querySelectorAll('.screen').forEach(e=>e.classList.remove('on'));
+    document.getElementById(map[s]).classList.add('on');
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.s===s));
+    const sc=document.querySelector('.screen.on'); if(sc) sc.scrollTop=0;
+    window.scrollTo(0,0);
+  }
+</script>
+</body>
+</html>
