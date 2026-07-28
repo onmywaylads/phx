@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>피닉스 파트너 — 대리점 앱 (시안)</title>
+<!--
+  ===========================================================================
+  피닉스 대리점 웹앱 목업 v0.2  (모던 · 40~60대 현장용)
+  구조 재설계: 사람(식당) 중심
+    탭: 오늘(홈/할일피드) · 주문(발주+재고 O/X) · 고객(구역+설치등록) · 수수료
+  원칙: 검색창 없음 · 자주쓰는것 상단고정 · 주문 3탭 · 큰글씨 고대비 · 차트없음
+  ===========================================================================
+-->
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+  :root{
+    --blue:#3182F6; --blue-strong:#1B64DA; --blue-050:#EEF4FF;
+    --navy:#191F28; --g900:#333D4B; --g700:#4E5968; --g500:#6B7684; --g400:#8B95A1;
+    --g200:#E5E8EB; --g100:#F2F4F6; --g50:#F9FAFB; --white:#fff;
+    --green:#00B368; --green-bg:#E7F8F0; --red:#F04452; --red-bg:#FDECEE; --amber:#FF9500; --amber-bg:#FFF4E5;
+    --r:18px; --sh:0 2px 8px rgba(16,24,40,.06); --sh-lg:0 10px 30px rgba(16,24,40,.10);
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:'Pretendard Variable','Pretendard',-apple-system,system-ui,'Malgun Gothic',sans-serif;
+    color:var(--navy);line-height:1.45;-webkit-font-smoothing:antialiased;letter-spacing:-.01em;
+    background:#E9EEF5;background:linear-gradient(160deg,#EAF1FA,#DDE6F1);display:flex;flex-direction:column;align-items:center;min-height:100%}
+  img{display:block;max-width:100%}
+  button{font-family:inherit;cursor:pointer;border:0;background:none}
+
+  /* 데모 안내 (프레임 밖) */
+  .demo-note{max-width:430px;width:100%;padding:14px 20px 6px;color:#5B6B80;font-size:13px;font-weight:600;text-align:center}
+
+  /* 폰 프레임 */
+  .phone{width:100%;max-width:430px;background:var(--g50);min-height:860px;position:relative;
+    box-shadow:var(--sh-lg);overflow:hidden;display:flex;flex-direction:column;
+    border-radius:0}
+  @media(min-width:480px){.phone{border-radius:34px;margin:6px 0 30px;min-height:900px;border:1px solid rgba(0,0,0,.06)}}
+
+  /* 앱바 */
+  .appbar{background:var(--white);padding:16px 20px 14px;display:flex;align-items:center;justify-content:space-between;
+    border-bottom:1px solid var(--g100);position:sticky;top:0;z-index:20}
+  .appbar .brand{display:flex;align-items:center;gap:9px}
+  .appbar .mk{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--blue),#5A9BFF);color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px}
+  .appbar .who{font-size:12.5px;color:var(--g500);font-weight:600}
+  .appbar .who b{display:block;color:var(--navy);font-size:15px;font-weight:800;letter-spacing:-.02em}
+  .bell{width:42px;height:42px;border-radius:12px;background:var(--g100);display:grid;place-items:center;font-size:19px;position:relative}
+  .bell .dot{position:absolute;top:9px;right:10px;width:8px;height:8px;background:var(--red);border-radius:50%}
+
+  /* 스크롤 영역 */
+  .screen{flex:1;overflow-y:auto;padding:20px 18px 110px}
+  .screen{display:none}
+  .screen.on{display:block}
+
+  .hi{font-size:22px;font-weight:800;letter-spacing:-.03em;line-height:1.3;margin-bottom:4px}
+  .hi b{color:var(--blue)}
+  .sub{color:var(--g500);font-size:14.5px;font-weight:500;margin-bottom:18px}
+
+  .grouplabel{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800;margin:22px 2px 12px;letter-spacing:-.02em}
+  .grouplabel .cnt{font-size:13px;font-weight:700;color:var(--g400)}
+  .grouplabel.red{color:var(--red)} .grouplabel.amber{color:#C77700} .grouplabel.gray{color:var(--g700)}
+
+  /* 카드 */
+  .card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);padding:16px;margin-bottom:12px}
+  .row-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .cust{font-size:18px;font-weight:800;letter-spacing:-.02em}
+  .meta{font-size:13.5px;color:var(--g500);font-weight:500;margin-top:2px}
+  .tagpill{font-size:12px;font-weight:800;padding:5px 10px;border-radius:999px;white-space:nowrap}
+  .tp-red{background:var(--red-bg);color:var(--red)} .tp-amber{background:var(--amber-bg);color:#C77700} .tp-green{background:var(--green-bg);color:var(--green)} .tp-blue{background:var(--blue-050);color:var(--blue-strong)}
+
+  .gauge{height:9px;border-radius:99px;background:var(--g100);overflow:hidden;margin:12px 0 4px}
+  .gauge>i{display:block;height:100%;border-radius:99px}
+  .gtxt{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;color:var(--g500)}
+
+  .actions{display:flex;gap:8px;margin-top:14px}
+  .act{flex:1;min-height:48px;border-radius:12px;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:6px}
+  .act.call{background:var(--navy);color:#fff}
+  .act.add{background:var(--blue);color:#fff}
+  .act.ghost{background:var(--g100);color:var(--g900)}
+  .act:active{transform:scale(.97)}
+
+  /* 주문 탭 */
+  .seg{display:flex;gap:6px;background:var(--g100);padding:5px;border-radius:14px;margin-bottom:16px}
+  .seg button{flex:1;min-height:44px;border-radius:10px;font-weight:800;font-size:15px;color:var(--g500)}
+  .seg button.on{background:#fff;color:var(--navy);box-shadow:var(--sh)}
+  .pinlabel{font-size:13px;font-weight:800;color:var(--g400);margin:4px 2px 10px}
+  .part{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+  .part .info{flex:1;min-width:0}
+  .part .pname{font-size:16.5px;font-weight:800;letter-spacing:-.02em}
+  .part .fit{font-size:12.5px;color:var(--g500);font-weight:600;margin-top:2px}
+  .stock{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;padding:5px 9px;border-radius:8px;margin-top:7px}
+  .stock.ok{background:var(--green-bg);color:var(--green)}
+  .stock.no{background:var(--red-bg);color:var(--red)}
+  .stepper{display:flex;align-items:center;gap:0;background:var(--g100);border-radius:12px;flex:none}
+  .stepper button{width:40px;height:44px;font-size:22px;font-weight:700;color:var(--navy);display:grid;place-items:center}
+  .stepper .q{min-width:30px;text-align:center;font-size:17px;font-weight:800}
+  .notify{font-size:13px;font-weight:800;color:var(--blue-strong);background:var(--blue-050);padding:11px 12px;border-radius:11px;white-space:nowrap}
+
+  /* 주문 하단 바 */
+  .orderbar{position:absolute;left:0;right:0;bottom:76px;padding:12px 16px;background:linear-gradient(180deg,rgba(249,250,251,0),var(--g50) 30%);display:flex;gap:12px;align-items:center}
+  .orderbar .sum{flex:1;font-size:14px;font-weight:700;color:var(--g700)}
+  .orderbar .sum b{display:block;font-size:19px;color:var(--navy);letter-spacing:-.02em}
+  .orderbar .go{min-height:56px;padding:0 26px;border-radius:16px;background:var(--blue);color:#fff;font-size:17px;font-weight:800;box-shadow:0 8px 20px rgba(49,130,246,.35)}
+  .orderbar .go:active{transform:scale(.97)}
+
+  /* 고객 탭 */
+  .bigbtn{width:100%;min-height:64px;border-radius:16px;background:var(--blue);color:#fff;font-size:18px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 20px rgba(49,130,246,.3);margin-bottom:8px}
+  .bigbtn:active{transform:scale(.98)}
+  .bigbtn .sub2{font-size:12.5px;font-weight:600;opacity:.85}
+  .chips{display:flex;gap:8px;margin:16px 0 12px;overflow-x:auto;padding-bottom:2px}
+  .chip{flex:none;padding:9px 15px;border-radius:999px;background:var(--white);border:1px solid var(--g200);font-size:14px;font-weight:700;color:var(--g700)}
+  .chip.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .clist .part{align-items:center}
+  .thumb{width:54px;height:54px;border-radius:12px;background-color:#F1F5FA;background-size:contain;background-repeat:no-repeat;background-position:center;flex:none}
+
+  /* 수수료 탭 */
+  .money-hero{background:linear-gradient(140deg,var(--navy),#2B3A52);border-radius:22px;padding:26px 24px;color:#fff;box-shadow:var(--sh-lg)}
+  .money-hero .k{font-size:14px;color:#AEBBcc;font-weight:600}
+  .money-hero .amt{font-size:40px;font-weight:800;letter-spacing:-.04em;margin:6px 0 2px}
+  .money-hero .amt small{font-size:22px}
+  .money-hero .trend{font-size:13.5px;font-weight:700;color:#7FE0AE}
+  .money-hero .settle{margin-top:14px;font-size:12.5px;color:#9DAABC;border-top:1px solid rgba(255,255,255,.12);padding-top:12px}
+  .brk{background:#fff;border-radius:var(--r);box-shadow:var(--sh);margin-top:14px;overflow:hidden}
+  .brk .li{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--g100)}
+  .brk .li:last-child{border-bottom:0}
+  .brk .li .l{font-size:15.5px;font-weight:700}
+  .brk .li .l small{display:block;font-size:12.5px;color:var(--g400);font-weight:600;margin-top:2px}
+  .brk .li .v{font-size:17px;font-weight:800;letter-spacing:-.02em}
+
+  /* 하단 탭바 */
+  .tabbar{position:absolute;left:0;right:0;bottom:0;height:72px;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);
+    border-top:1px solid var(--g100);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:30}
+  .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--g400);font-size:11.5px;font-weight:800;position:relative}
+  .tab .ic{font-size:23px;line-height:1}
+  .tab.on{color:var(--blue)}
+  .tab.center .ic{margin-top:-2px}
+  .tab .nbadge{position:absolute;top:8px;left:calc(50% + 8px);background:var(--red);color:#fff;font-size:10px;font-weight:800;min-width:16px;height:16px;border-radius:99px;display:grid;place-items:center;padding:0 4px}
+</style>
+</head>
+<body>
+
+<div class="demo-note">📱 대리점 앱 시안 — 하단 탭을 눌러 화면을 넘겨보세요 (실제 데이터는 가안)</div>
+
+<div class="phone">
+  <!-- 앱바 -->
+  <div class="appbar">
+    <div class="brand">
+      <span class="mk">P</span>
+      <span class="who">피닉스 파트너<b>김포대리점 · 김철수</b></span>
+    </div>
+    <button class="bell">🔔<span class="dot"></span></button>
+  </div>
+
+  <!-- ============ 오늘 ============ -->
+  <div class="screen on" id="s-today">
+    <div class="hi">사장님, 오늘 챙길 곳 <b>5곳</b>이에요</div>
+    <div class="sub">전화 오기 전에 먼저 챙기면 돼요</div>
+
+    <div class="grouplabel red">🔴 세제 곧 소진 · 지금 연락 <span class="cnt">3곳</span></div>
+
+    <div class="card">
+      <div class="row-top">
+        <div><div class="cust">진상미식당</div><div class="meta">프라임 · E크린 레드</div></div>
+        <span class="tagpill tp-red">약 5일 남음</span>
+      </div>
+      <div class="gauge"><i style="width:16%;background:linear-gradient(90deg,var(--red),var(--amber))"></i></div>
+      <div class="gtxt"><span>잔량 약 16%</span><span>마지막 구매 32일 전</span></div>
+      <div class="actions">
+        <button class="act call">📞 전화</button>
+        <button class="act add" onclick="go('order')">＋ 세제 담기</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row-top">
+        <div><div class="cust">한마음분식</div><div class="meta">이코노믹 · E크린 레드/블루</div></div>
+        <span class="tagpill tp-amber">약 9일 남음</span>
+      </div>
+      <div class="gauge"><i style="width:30%;background:linear-gradient(90deg,var(--amber),#FFC24B)"></i></div>
+      <div class="gtxt"><span>잔량 약 30%</span><span>마지막 구매 27일 전</span></div>
+      <div class="actions">
+        <button class="act call">📞 전화</button>
+        <button class="act add" onclick="go('order')">＋ 세제 담기</button>
+      </div>
+    </div>
+
+    <div class="grouplabel amber">🔧 AS 요청 · 부품 챙겨 가기 <span class="cnt">1건</span></div>
+    <div class="card">
+      <div class="row-top">
+        <div><div class="cust">대성갈비</div><div class="meta">로하스 · “헹굼이 약해요” (어제 접수)</div></div>
+        <span class="tagpill tp-blue">부품 재고 O</span>
+      </div>
+      <div class="actions">
+        <button class="act call">📞 전화</button>
+        <button class="act ghost" onclick="go('order')">🔩 부품 확인</button>
+      </div>
+    </div>
+
+    <div class="grouplabel gray">💤 3개월+ 주문 없음 · 한번 챙겨보기 <span class="cnt">2곳</span></div>
+    <div class="card">
+      <div class="row-top">
+        <div><div class="cust">옛날손칼국수</div><div class="meta">이코노믹 · 마지막 주문 89일 전</div></div>
+        <span class="tagpill tp-amber">휴면</span>
+      </div>
+      <div class="actions"><button class="act call">📞 전화</button><button class="act ghost">기록 보기</button></div>
+    </div>
+  </div>
+
+  <!-- ============ 주문 ============ -->
+  <div class="screen" id="s-order">
+    <div class="hi">부품·세제 주문</div>
+    <div class="sub">재고 O/X 확인하고 바로 담으세요</div>
+    <div class="seg">
+      <button class="on">자주 쓰는 것</button>
+      <button>부품 전체</button>
+      <button>세제</button>
+    </div>
+    <div class="pinlabel">📌 자주 쓰는 것</div>
+
+    <div class="part">
+      <div class="info">
+        <div class="pname">히터 (가열봉)</div>
+        <div class="fit">호환: 프라임 · 로하스 · 스페셜</div>
+        <span class="stock ok">🟢 재고 있음</span>
+      </div>
+      <div class="stepper"><button onclick="step(this,-1)">–</button><span class="q">1</span><button onclick="step(this,1)">＋</button></div>
+    </div>
+
+    <div class="part">
+      <div class="info">
+        <div class="pname">세척 펌프</div>
+        <div class="fit">호환: 프라임 · 컨베어형</div>
+        <span class="stock no">🔴 품절 · 입고 7/31</span>
+      </div>
+      <div class="notify">알림받기</div>
+    </div>
+
+    <div class="part">
+      <div class="info">
+        <div class="pname">도어 스프링</div>
+        <div class="fit">호환: 전 모델</div>
+        <span class="stock ok">🟢 재고 있음</span>
+      </div>
+      <div class="stepper"><button onclick="step(this,-1)">–</button><span class="q">2</span><button onclick="step(this,1)">＋</button></div>
+    </div>
+
+    <div class="pinlabel" style="margin-top:18px">🧴 세제</div>
+    <div class="part">
+      <div class="info">
+        <div class="pname">E크린 레드 20L (세척)</div>
+        <div class="fit">전 모델 공용</div>
+        <span class="stock ok">🟢 재고 있음</span>
+      </div>
+      <div class="stepper"><button onclick="step(this,-1)">–</button><span class="q">1</span><button onclick="step(this,1)">＋</button></div>
+    </div>
+    <div class="part">
+      <div class="info">
+        <div class="pname">E크린 블루 20L (린스)</div>
+        <div class="fit">전 모델 공용</div>
+        <span class="stock ok">🟢 재고 있음</span>
+      </div>
+      <div class="stepper"><button onclick="step(this,-1)">–</button><span class="q">0</span><button onclick="step(this,1)">＋</button></div>
+    </div>
+
+    <div class="orderbar">
+      <div class="sum">담은 품목 <span id="cartn">3</span>개<b id="carttxt">주문 준비 완료</b></div>
+      <button class="go" onclick="alert('시안입니다 — 확인 화면으로 (총 3탭 발주)')">주문하기</button>
+    </div>
+  </div>
+
+  <!-- ============ 고객 ============ -->
+  <div class="screen" id="s-cust">
+    <div class="hi">우리 구역 식당 <b>32곳</b></div>
+    <div class="sub">식당을 누르면 기기·세제·이력이 한눈에</div>
+
+    <button class="bigbtn" onclick="alert('시안 — 사진 촬영 + 시리얼 + 주소 입력 (1분)')">
+      <span>＋ 설치 등록</span><span class="sub2">사진·시리얼·주소 · 1분</span>
+    </button>
+
+    <div class="chips">
+      <div class="chip on">전체</div>
+      <div class="chip">🔴 세제 임박</div>
+      <div class="chip">최근 설치</div>
+      <div class="chip">휴면</div>
+    </div>
+
+    <div class="clist">
+      <div class="part">
+        <div class="thumb" style="background-image:url('images/prime.jpg')"></div>
+        <div class="info">
+          <div class="pname">진상미식당</div>
+          <div class="fit">프라임 2대 · 마지막 주문 32일 전</div>
+        </div>
+        <span class="tagpill tp-red">세제 임박</span>
+      </div>
+      <div class="part">
+        <div class="thumb" style="background-image:url('images/lohas.jpg')"></div>
+        <div class="info">
+          <div class="pname">대성갈비</div>
+          <div class="fit">로하스 1대 · AS 진행 중</div>
+        </div>
+        <span class="tagpill tp-blue">AS</span>
+      </div>
+      <div class="part">
+        <div class="thumb" style="background-image:url('images/economic.jpg')"></div>
+        <div class="info">
+          <div class="pname">한마음분식</div>
+          <div class="fit">이코노믹 1대 · 마지막 주문 27일 전</div>
+        </div>
+        <span class="tagpill tp-amber">관심</span>
+      </div>
+      <div class="part">
+        <div class="thumb" style="background-image:url('images/rack.jpg')"></div>
+        <div class="info">
+          <div class="pname">부흥뷔페</div>
+          <div class="fit">컨베어형 1대 · 초음파버블 1대</div>
+        </div>
+        <span class="tagpill tp-green">정상</span>
+      </div>
+      <div class="part">
+        <div class="thumb" style="background-image:url('images/economic.jpg')"></div>
+        <div class="info">
+          <div class="pname">옛날손칼국수</div>
+          <div class="fit">이코노믹 1대 · 마지막 주문 89일 전</div>
+        </div>
+        <span class="tagpill tp-amber">휴면</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 수수료 ============ -->
+  <div class="screen" id="s-money">
+    <div class="hi">이번 달 수입</div>
+    <div class="sub">배송·설치·구독으로 쌓인 내 수수료</div>
+
+    <div class="money-hero">
+      <div class="k">7월 예상 수수료</div>
+      <div class="amt">₩1,240,000</div>
+      <div class="trend">▲ 지난달보다 +16만원</div>
+      <div class="settle">매월 25일 정산 · 계좌 입금</div>
+    </div>
+
+    <div class="brk">
+      <div class="li"><div class="l">세제 구독 수수료<small>정기배송 18건</small></div><div class="v">₩540,000</div></div>
+      <div class="li"><div class="l">설치 수수료<small>이번 달 3대</small></div><div class="v">₩450,000</div></div>
+      <div class="li"><div class="l">부품 배송 수수료<small>12건</small></div><div class="v">₩250,000</div></div>
+    </div>
+
+    <div class="card" style="margin-top:14px;background:var(--blue-050);box-shadow:none">
+      <div style="font-size:14.5px;font-weight:700;color:var(--blue-strong);line-height:1.5">
+        💡 세제 구독을 늘릴수록 <b>매달 자동으로 쌓이는 수수료</b>가 커집니다. ‘오늘’ 탭의 소진 임박 식당부터 챙겨보세요.
+      </div>
+    </div>
+  </div>
+
+  <!-- 하단 탭바 -->
+  <div class="tabbar">
+    <button class="tab on" data-s="today" onclick="go('today')"><span class="ic">🏠</span>오늘<span class="nbadge">5</span></button>
+    <button class="tab center" data-s="order" onclick="go('order')"><span class="ic">📦</span>주문</button>
+    <button class="tab" data-s="cust" onclick="go('cust')"><span class="ic">🏪</span>고객</button>
+    <button class="tab" data-s="money" onclick="go('money')"><span class="ic">💰</span>수수료</button>
+  </div>
+</div>
+
+<script>
+  const map={today:'s-today',order:'s-order',cust:'s-cust',money:'s-money'};
+  function go(s){
+    document.querySelectorAll('.screen').forEach(e=>e.classList.remove('on'));
+    document.getElementById(map[s]).classList.add('on');
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.s===s));
+    document.querySelector('.screen.on').scrollTop=0;
+  }
+  function step(btn,d){
+    const q=btn.parentElement.querySelector('.q');
+    q.textContent=Math.max(0,parseInt(q.textContent)+d);
+    // 담은 품목 수 갱신
+    let n=0;document.querySelectorAll('#s-order .stepper .q').forEach(e=>{if(parseInt(e.textContent)>0)n++;});
+    document.getElementById('cartn').textContent=n;
+  }
+</script>
+</body>
+</html>
