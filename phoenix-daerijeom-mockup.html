@@ -130,7 +130,16 @@
   .tab .ic{width:24px;height:24px}
   .tab.on{color:var(--blue)}
   .tab .badge{position:absolute;top:8px;left:calc(50% + 7px);background:var(--red);color:#fff;font-size:10px;font-weight:800;min-width:16px;height:16px;border-radius:99px;display:grid;place-items:center;padding:0 4px;line-height:1}
-  @media(max-width:479px){.demo-note{display:none}body{height:100dvh;overflow:hidden}}
+  @media(max-width:479px){
+    .demo-note{display:none}
+    body{display:block;background:#fff}
+    .phone{display:block;max-width:none;height:auto;min-height:100dvh;overflow:visible;box-shadow:none;border-radius:0}
+    .appbar{position:fixed;top:0;left:0;right:0;z-index:40;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+    .tabbar{position:fixed;bottom:0;left:0;right:0;z-index:40}
+    .screen{padding-top:82px;padding-bottom:calc(94px + env(safe-area-inset-bottom))}
+    #s-order{padding-bottom:calc(164px + env(safe-area-inset-bottom))}
+    .orderbar{position:fixed;bottom:calc(70px + env(safe-area-inset-bottom));left:0;right:0;z-index:35}
+  }
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
