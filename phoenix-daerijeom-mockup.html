@@ -123,6 +123,18 @@
   .tip{margin-top:13px;background:var(--blue-050);border-radius:var(--r);padding:16px;display:flex;gap:11px}
   .tip .ic{width:20px;height:20px;color:var(--blue);flex:none;margin-top:1px}
   .tip p{font-size:14px;font-weight:600;color:var(--blue-strong);line-height:1.5}
+  .settle-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .settle-card{border-radius:16px;padding:18px 16px}
+  .settle-card.in{background:linear-gradient(140deg,var(--navy),#2B3A52);color:#fff;box-shadow:var(--sh-lg)}
+  .settle-card.out{background:#fff;border:1px solid var(--g200);box-shadow:var(--sh)}
+  .settle-card .k{font-size:12.5px;font-weight:600}
+  .settle-card.in .k{color:#AEBBCC}.settle-card.out .k{color:var(--g500)}
+  .settle-card .amt{font-size:22px;font-weight:800;letter-spacing:-.03em;margin:7px 0 4px}
+  .settle-card.in .amt{color:#63E6BE}.settle-card.out .amt{color:var(--navy)}
+  .settle-card .cap{font-size:11.5px;font-weight:600}
+  .settle-card.in .cap{color:#9DAABC}.settle-card.out .cap{color:var(--g400)}
+  .txtlink{width:100%;text-align:center;padding:15px;margin-top:11px;font-size:14.5px;font-weight:700;color:var(--g700);background:#fff;border:1px solid var(--g200);border-radius:14px}
+  .txtlink:active{background:var(--g50)}
 
   /* 하단 탭바 */
   .tabbar{flex:none;height:70px;background:#fff;border-top:1px solid var(--g100);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:30}
@@ -315,20 +327,38 @@
 
   <!-- 수수료 -->
   <div class="screen" id="s-money">
-    <div class="hi">이번 달 수입</div>
-    <div class="sub">배송·설치·구독으로 쌓인 내 수수료</div>
-    <div class="money-hero">
-      <div class="k">7월 예상 수수료</div>
-      <div class="amt">₩1,240,000</div>
-      <div class="trend"><svg class="ic"><use href="#i-trend"/></svg>지난달보다 +16만원</div>
-      <div class="settle">매월 25일 정산 · 계좌 입금</div>
+    <div class="hi">7월 정산</div>
+    <div class="sub">본사와 주고받을 돈을 한눈에 <span class="pill amber" style="font-size:11px;padding:3px 7px">가안 · 결제방식 확인 후 확정</span></div>
+
+    <div class="settle-grid">
+      <div class="settle-card in">
+        <div class="k">받을 돈 · 내 수입</div>
+        <div class="amt">+1,240,000</div>
+        <div class="cap">매월 25일 계좌 입금</div>
+      </div>
+      <div class="settle-card out">
+        <div class="k">낼 돈 · 매입 대금</div>
+        <div class="amt">870,000</div>
+        <div class="cap">결제 예정 7/31</div>
+      </div>
     </div>
+
+    <div class="glabel"><span class="dot" style="background:var(--green)"></span>받을 돈 · 이번 달 수입<span class="cnt">지난달 +16만</span></div>
     <div class="brk">
       <div class="li"><div class="l">세제 구독 수수료<small>정기배송 18건</small></div><div class="v">₩540,000</div></div>
       <div class="li"><div class="l">설치 수수료<small>이번 달 3대</small></div><div class="v">₩450,000</div></div>
-      <div class="li"><div class="l">부품 배송 수수료<small>12건</small></div><div class="v">₩250,000</div></div>
+      <div class="li"><div class="l">판매 마진<small>기계·세제 판매</small></div><div class="v">₩190,000</div></div>
+      <div class="li"><div class="l">부품 배송·AS<small>12건</small></div><div class="v">₩60,000</div></div>
     </div>
-    <div class="tip"><svg class="ic"><use href="#i-spark"/></svg><p>세제 구독을 늘릴수록 매달 자동으로 쌓이는 수수료가 커집니다. ‘오늘’ 탭의 소진 임박 식당부터 챙겨보세요.</p></div>
+
+    <div class="glabel"><span class="dot" style="background:var(--amber)"></span>낼 돈 · 본사 매입 대금</div>
+    <div class="brk">
+      <div class="li"><div class="l">이번 달 부품·세제 매입<small>주문 26건</small></div><div class="v">₩870,000</div></div>
+      <div class="li"><div class="l">결제 예정일<small>매월 말일 외상 정산</small></div><div class="v" style="color:var(--red)">7/31</div></div>
+    </div>
+    <button class="txtlink" onclick="alert('시안 — 월별 거래·정산 상세 내역')">전체 거래 내역 보기 ›</button>
+
+    <div class="tip"><svg class="ic"><use href="#i-spark"/></svg><p>세제 구독을 늘릴수록 매달 ‘받을 돈’이 자동으로 커집니다. ‘오늘’ 탭의 소진 임박 식당부터 챙겨보세요.</p></div>
   </div>
 
   <!-- 하단 탭바 -->
@@ -336,7 +366,7 @@
     <button class="tab on" data-s="today" onclick="go('today')"><svg class="ic"><use href="#i-home"/></svg>오늘<span class="badge">5</span></button>
     <button class="tab" data-s="order" onclick="go('order')"><svg class="ic"><use href="#i-box"/></svg>주문</button>
     <button class="tab" data-s="cust" onclick="go('cust')"><svg class="ic"><use href="#i-users"/></svg>고객</button>
-    <button class="tab" data-s="money" onclick="go('money')"><svg class="ic"><use href="#i-wallet"/></svg>수수료</button>
+    <button class="tab" data-s="money" onclick="go('money')"><svg class="ic"><use href="#i-wallet"/></svg>정산</button>
   </nav>
 </div>
 
