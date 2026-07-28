@@ -71,8 +71,9 @@
   .feat{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--g100);border-radius:14px;padding:13px 14px;box-shadow:var(--sh-sm)}
   .feat .fic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none}
   .feat .fic .ic{width:20px;height:20px}
-  .feat .ft{font-size:12.5px;color:var(--g500);font-weight:600;line-height:1.3}
-  .feat .fv{font-size:15.5px;color:var(--navy);font-weight:800;letter-spacing:-.02em}
+  .feat .txt{display:flex;flex-direction:column;gap:1px;min-width:0}
+  .feat .ft{font-size:12.5px;color:var(--g500);font-weight:600;line-height:1.35}
+  .feat .fv{font-size:16px;color:var(--navy);font-weight:800;letter-spacing:-.02em;line-height:1.2}
   .hero-photo{border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-lg);background:#fff;border:1px solid var(--g100);
     aspect-ratio:4/5;background-size:contain;background-repeat:no-repeat;background-position:center;padding:16px}
 
@@ -206,7 +207,7 @@
     nav.main,.h-tel{display:none}
     .menu-btn{display:flex}
     .hero .wrap{grid-template-columns:1fr;gap:32px;padding:44px 20px 52px}
-    .hero-photo{max-width:360px;margin:0 auto;aspect-ratio:1/1}
+    .hero-photo{display:none}
     .diff .wrap{grid-template-columns:1fr;gap:28px}
     .price-grid{grid-template-columns:1fr}
     .hyg .wrap{grid-template-columns:1fr;gap:24px;text-align:center}
@@ -275,8 +276,8 @@
       <a class="btn btn-soft btn-lg" href="#price">가격 바로 보기</a>
     </div>
     <div class="features">
-      <div class="feat"><span class="fic" style="background:var(--blue-050)"><svg class="ic" style="color:var(--blue)"><use href="#i-droplet"/></svg></span><span><span class="ft">별도 온수기</span><span class="fv">불필요</span></span></div>
-      <div class="feat"><span class="fic" style="background:#FFECEC"><svg class="ic" style="color:var(--red)"><use href="#i-thermo"/></svg></span><span><span class="ft">헹굼 고온 살균</span><span class="fv">83°C</span></span></div>
+      <div class="feat"><span class="fic" style="background:var(--blue-050)"><svg class="ic" style="color:var(--blue)"><use href="#i-droplet"/></svg></span><span class="txt"><span class="ft">별도 온수기</span><span class="fv">불필요</span></span></div>
+      <div class="feat"><span class="fic" style="background:#FFECEC"><svg class="ic" style="color:var(--red)"><use href="#i-thermo"/></svg></span><span class="txt"><span class="ft">헹굼 고온 살균</span><span class="fv">83°C</span></span></div>
     </div>
   </div>
   <div class="hero-photo" style="background-image:url('images/prime.jpg')" role="img" aria-label="피닉스 프라임 식기세척기"></div>
